@@ -1,0 +1,57 @@
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Masonry grid adjustment for Tailwind columns */
+.break-inside-avoid {
+  break-inside: avoid;
+}
+
+/* Custom Cursor Styles were moved to index.css but keeping local refinements here if needed */
+.custom-cursor {
+  pointer-events: none;
+}
+
+/* Animation for the Fox Logo stroke */
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.fox-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 3s ease-in-out forwards;
+}
+
+/* Masking reveal effect */
+.reveal-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.reveal-mask::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  transform: translateY(0);
+  transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.reveal-mask.revealed::after {
+  transform: translateY(-100%);
+}
