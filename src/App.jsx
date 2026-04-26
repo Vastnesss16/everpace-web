@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import logo from './assets/logo.jpeg';
 import './App.css';
 
+/* ─── Custom Cursor ─── */
 const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -11,18 +12,15 @@ const CustomCursor = () => {
     const onMouseMove = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
-
     const onMouseOver = (e) => {
-      if (e.target.closest('.hover-target')) {
+      if (e.target.closest('.hover-target') || e.target.closest('button') || e.target.closest('a') || e.target.closest('.quiz-option')) {
         setIsHovering(true);
       } else {
         setIsHovering(false);
       }
     };
-
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseover', onMouseOver);
-
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseover', onMouseOver);
@@ -30,155 +28,223 @@ const CustomCursor = () => {
   }, []);
 
   return (
-    <div 
+    <div
       className={`custom-cursor ${isHovering ? 'hovering' : ''}`}
       style={{ left: `${position.x}px`, top: `${position.y}px` }}
     >
-      <span className="cursor-text">View Project</span>
+      <span className="cursor-text">View</span>
     </div>
   );
 };
 
-const FoxLogo = () => (
-  <motion.svg
-    width="120"
-    height="120"
-    viewBox="0 0 100 100"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    initial="hidden"
-    animate="visible"
-  >
-    {/* Ears */}
-    <motion.path
-      d="M30 40 L20 20 L45 35 M70 40 L80 20 L55 35"
-      stroke="white"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      variants={{
-        hidden: { pathLength: 0, opacity: 0 },
-        visible: { 
-          pathLength: 1, 
-          opacity: 1,
-          transition: { duration: 1.5, ease: "easeInOut" }
-        }
-      }}
-    />
-    {/* Head/Face */}
-    <motion.path
-      d="M50 85 L25 45 C25 45 35 35 50 35 C65 35 75 45 75 45 L50 85 Z"
-      stroke="white"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      variants={{
-        hidden: { pathLength: 0, opacity: 0 },
-        visible: { 
-          pathLength: 1, 
-          opacity: 1,
-          transition: { duration: 2, ease: "easeInOut", delay: 0.5 }
-        }
-      }}
-    />
-    {/* Nose detail */}
-    <motion.circle
-      cx="50"
-      cy="85"
-      r="1.5"
-      fill="white"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 2.5 }}
-    />
-  </motion.svg>
-);
+/* ─── Hero: Curtain Reveal ─── */
+const Hero = () => {
+  const [revealed, setRevealed] = useState(false);
 
-const Hero = () => (
-  <section className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-    <div className="mb-8">
-      <FoxLogo />
-    </div>
-    <motion.h1 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.5, duration: 1 }}
-      className="text-5xl md:text-7xl font-serif mb-4"
-    >
-      Ink that outlasts time
-    </motion.h1>
-  </section>
-);
+  useEffect(() => {
+    const timer = setTimeout(() => setRevealed(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
+  return (
+    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden bg-richBlack">
+      {/* Curtain overlay */}
+      <motion.div
+        className="absolute inset-0 bg-richBlack z-20"
+        initial={{ y: 0 }}
+        animate={{ y: revealed ? '-100%' : '0%' }}
+        transition={{ duration: 1.2, ease: [0.77, 0, 0.175, 1], delay: 0.2 }}
+      />
+
+      {/* Logo with expansion */}
+      <motion.div
+        className="relative z-10 mb-8"
+        initial={{ opacity: 0, scale: 0.3 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: 'easeOut', delay: 0.8 }}
+      >
+        <motion.img
+          src={logo}
+          alt="Everpace Logo"
+          className="w-48 md:w-72 lg:w-96 grayscale hover:grayscale-0 transition-all duration-700 rounded-lg"
+          whileHover={{ scale: 1.05 }}
+        />
+      </motion.div>
+
+      <motion.h1
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4, duration: 1, ease: 'easeOut' }}
+        className="text-5xl md:text-7xl lg:text-8xl font-serif mb-6 tracking-tight"
+      >
+        Ink that outlasts time
+      </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.8, duration: 1 }}
+        className="text-secondary text-sm md:text-base tracking-[0.3em] uppercase font-light"
+      >
+        Everpace Tattoo Studio
+      </motion.p>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.2, duration: 1 }}
+        className="absolute bottom-12 left-1/2 -translate-x-1/2"
+      >
+        <div className="w-px h-16 bg-gradient-to-b from-transparent via-secondary to-transparent animate-pulse" />
+      </motion.div>
+    </section>
+  );
+};
+
+/* ─── Portfolio: Horizontal Parallax Scroll ─── */
 const Gallery = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-75%']);
+  const smoothX = useSpring(x, { stiffness: 100, damping: 30 });
+
   const tattoos = [
-    { id: 1, src: logo, title: "Abstract Flow" },
-    { id: 2, src: logo, title: "Minimalist Geometry" },
-    { id: 3, src: logo, title: "Nature's Edge" },
-    { id: 4, src: logo, title: "Modern Script" },
-    { id: 5, src: logo, title: "Fine Line Art" },
-    { id: 6, src: logo, title: "Eternal Bloom" },
+    { id: 1, src: logo, title: 'Abstract Flow', artist: 'Juve' },
+    { id: 2, src: logo, title: 'Minimalist Geometry', artist: 'Juve' },
+    { id: 3, src: logo, title: "Nature's Edge", artist: 'Juve' },
+    { id: 4, src: logo, title: 'Modern Script', artist: 'Juve' },
+    { id: 5, src: logo, title: 'Fine Line Art', artist: 'Juve' },
+    { id: 6, src: logo, title: 'Eternal Bloom', artist: 'Juve' },
   ];
 
   return (
-    <section className="py-24 px-4 max-w-7xl mx-auto">
-      <h2 className="text-3xl font-serif mb-12 text-center">Portfolio</h2>
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-8">
-        {tattoos.map((item) => (
-          <motion.div 
-            key={item.id}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-8 break-inside-avoid hover-target group cursor-none overflow-hidden"
-          >
-            <motion.img 
-              src={item.src} 
-              alt={item.title}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.6, ease: "circOut" }}
-              className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-500"
-            />
-            <div className="mt-4 text-sm tracking-widest uppercase text-secondary">
-              {item.title}
-            </div>
-          </motion.div>
-        ))}
+    <section ref={containerRef} className="horizontal-scroll-section bg-richBlack">
+      <div className="horizontal-scroll-sticky">
+        <div className="absolute top-12 left-4 md:left-12 z-10">
+          <h2 className="text-3xl md:text-5xl font-serif mb-2">Portfolio</h2>
+          <p className="text-secondary text-xs tracking-[0.2em] uppercase">Scroll to explore</p>
+        </div>
+
+        <motion.div style={{ x: smoothX }} className="parallax-container pl-4 md:pl-12 pt-24">
+          {tattoos.map((item, idx) => (
+            <motion.div
+              key={item.id}
+              className="parallax-item hover-target glass glass-card"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+            >
+              <img src={item.src} alt={item.title} className="grayscale" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <h3 className="text-xl font-serif">{item.title}</h3>
+                <p className="text-secondary text-xs tracking-widest uppercase mt-1">by {item.artist}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
 };
 
+/* ─── Philosophy: Thin Stroke Typography ─── */
+const Philosophy = () => {
+  return (
+    <section className="min-h-screen flex items-center justify-center px-4 bg-richBlack relative overflow-hidden">
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-white rounded-full blur-[120px]" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
+        className="relative z-10 text-center max-w-6xl mx-auto"
+      >
+        <motion.p
+          className="philosophy-text font-serif"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+        >
+          Permanent Art
+        </motion.p>
+        <motion.p
+          className="philosophy-text font-serif mt-2"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, delay: 0.6 }}
+        >
+          for Temporary Humans
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 1 }}
+          className="mt-16 max-w-xl mx-auto"
+        >
+          <p className="text-secondary text-sm md:text-base leading-relaxed font-light">
+            Every piece we create is a dialogue between permanence and impermanence — 
+            a ritual that transforms skin into canvas, and moments into eternity.
+          </p>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+};
+
+/* ─── Process: Vertical Timeline ─── */
 const Process = () => {
   const steps = [
-    { title: "Consultation", desc: "Understanding your story and vision." },
-    { title: "Design", desc: "Crafting a unique piece of art for you." },
-    { title: "Tattooing", desc: "Precise execution with clinical safety." },
+    { title: 'Consultation', desc: 'Understanding your story, vision, and the meaning behind your ink.' },
+    { title: 'Stencil', desc: 'Translating ideas into precise skin-ready art with meticulous detail.' },
+    { title: 'Inking', desc: 'Clinical safety meets artistic precision in every needle stroke.' },
+    { title: 'Aftercare', desc: 'Guiding you through healing to ensure your art lasts a lifetime.' },
   ];
 
-  const scrollRef = useRef(null);
-  useScroll({
-    target: scrollRef,
-    offset: ["start end", "end start"]
-  });
-
   return (
-    <section ref={scrollRef} className="py-24 bg-[#0a0a0a] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-3xl font-serif mb-24 text-center">The Journey</h2>
-        <div className="flex flex-col md:flex-row justify-between gap-12">
+    <section className="py-32 px-4 md:px-12 bg-richBlack">
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-24"
+        >
+          <h2 className="text-3xl md:text-5xl font-serif mb-4">The Ritual</h2>
+          <p className="text-secondary text-xs tracking-[0.3em] uppercase">Our Process</p>
+        </motion.div>
+
+        <div className="timeline-container">
+          <div className="timeline-line" />
+
           {steps.map((step, idx) => (
-            <motion.div 
+            <motion.div
               key={idx}
-              initial={{ opacity: 0, x: -50 }}
+              className="timeline-step hover-target"
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.2 }}
               viewport={{ once: true }}
-              className="flex-1 border-l border-border pl-8 py-4"
+              transition={{ delay: idx * 0.15, duration: 0.6 }}
             >
-              <span className="text-xs text-secondary mb-4 block">0{idx + 1}</span>
-              <h3 className="text-2xl font-serif mb-4">{step.title}</h3>
-              <p className="text-secondary leading-relaxed">{step.desc}</p>
+              <span className="text-xs text-secondary mb-3 block tracking-widest">0{idx + 1}</span>
+              <h3 className="step-title text-2xl md:text-3xl font-serif mb-3 transition-colors duration-300">
+                {step.title}
+              </h3>
+              <p className="step-desc text-secondary leading-relaxed max-w-md transition-colors duration-300 font-light">
+                {step.desc}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -187,34 +253,207 @@ const Process = () => {
   );
 };
 
+/* ─── Digital Consultation Quiz ─── */
+const ConsultationQuiz = () => {
+  const [step, setStep] = useState(0);
+  const [size, setSize] = useState('');
+  const [placement, setPlacement] = useState('');
+
+  const sizes = [
+    { label: 'Kecil', desc: '3-8 cm', time: '1-2 jam' },
+    { label: 'Sedang', desc: '8-15 cm', time: '2-4 jam' },
+    { label: 'Besar', desc: '15+ cm', time: '4+ jam' },
+  ];
+
+  const placements = [
+    { label: 'Lengan', desc: 'Forearm / Upper arm' },
+    { label: 'Leher', desc: 'Side / Nape' },
+    { label: 'Punggung', desc: 'Full / Upper / Lower' },
+  ];
+
+  const reset = () => {
+    setStep(0);
+    setSize('');
+    setPlacement('');
+  };
+
+  const getWhatsAppLink = () => {
+    const text = encodeURIComponent(
+      `Halo Everpace! Saya ingin booking konsultasi tatto.\nUkuran: ${size}\nPenempatan: ${placement}\nMohon info lebih lanjut, terima kasih!`
+    );
+    return `https://wa.me/?text=${text}`;
+  };
+
+  return (
+    <section className="py-32 px-4 bg-richBlack">
+      <div className="max-w-2xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl md:text-5xl font-serif mb-4">Digital Consultation</h2>
+          <p className="text-secondary text-xs tracking-[0.3em] uppercase">
+            Dapatkan estimasi untuk tato impianmu
+          </p>
+        </motion.div>
+
+        <div className="glass rounded-2xl p-8 md:p-12">
+          {/* Progress */}
+          <div className="quiz-progress mb-10">
+            <div
+              className="quiz-progress-fill"
+              style={{ width: step === 0 ? '33%' : step === 1 ? '66%' : '100%' }}
+            />
+          </div>
+
+          {step === 0 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h3 className="text-xl font-serif mb-8 text-center">Pilih ukuran tatomu</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {sizes.map((s) => (
+                  <button
+                    key={s.label}
+                    onClick={() => { setSize(s.label); setStep(1); }}
+                    className="quiz-option hover-target"
+                  >
+                    <div className="text-lg font-serif mb-1">{s.label}</div>
+                    <div className="text-secondary text-xs">{s.desc}</div>
+                    <div className="text-secondary text-xs mt-2">~{s.time}</div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {step === 1 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h3 className="text-xl font-serif mb-8 text-center">Pilih penempatan</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {placements.map((p) => (
+                  <button
+                    key={p.label}
+                    onClick={() => { setPlacement(p.label); setStep(2); }}
+                    className="quiz-option hover-target"
+                  >
+                    <div className="text-lg font-serif mb-1">{p.label}</div>
+                    <div className="text-secondary text-xs">{p.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setStep(0)}
+                className="mt-8 text-secondary text-xs tracking-widest uppercase hover:text-white transition-colors hover-target"
+              >
+                ← Kembali
+              </button>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-center"
+            >
+              <div className="mb-8">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full glass-strong flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-serif mb-2">Ringkasan Konsultasi</h3>
+                <p className="text-secondary text-sm">Ukuran: <span className="text-white">{size}</span> · Penempatan: <span className="text-white">{placement}</span></p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href={getWhatsAppLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-black text-xs tracking-[0.2em] uppercase font-medium rounded-lg hover:bg-secondary hover:text-white transition-all duration-500 hover-target"
+                >
+                  Hubungi via WhatsApp
+                </a>
+                <button
+                  onClick={reset}
+                  className="inline-flex items-center justify-center px-8 py-4 border border-border text-xs tracking-[0.2em] uppercase rounded-lg hover:border-white transition-all duration-500 hover-target"
+                >
+                  Ulangi
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ─── Booking CTA ─── */
 const Booking = () => (
-  <section className="py-32 px-4 text-center">
+  <section className="py-32 px-4 text-center bg-richBlack">
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
     >
-      <h2 className="text-4xl md:text-6xl font-serif mb-12 italic">Ready to make your mark?</h2>
-      <button className="px-12 py-4 border border-white hover:bg-white hover:text-black transition-all duration-500 tracking-[0.2em] uppercase text-xs">
+      <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif mb-12 italic">
+        Ready to make your mark?
+      </h2>
+      <a
+        href="https://wa.me/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-underline inline-block px-12 py-4 border border-white hover:bg-white hover:text-black transition-all duration-500 tracking-[0.2em] uppercase text-xs hover-target"
+      >
         Book an Appointment
-      </button>
+      </a>
     </motion.div>
   </section>
 );
 
+/* ─── Footer ─── */
+const Footer = () => (
+  <footer className="py-16 px-4 border-t border-border bg-richBlack">
+    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+      <div className="flex items-center gap-4">
+        <img src={logo} alt="Everpace" className="w-10 h-10 rounded object-cover grayscale opacity-60" />
+        <span className="text-xs tracking-[0.3em] uppercase text-secondary">Everpace Tattoo Studio</span>
+      </div>
+      <p className="text-xs tracking-widest text-secondary uppercase">
+        &copy; {new Date().getFullYear()} Everpace. All rights reserved.
+      </p>
+    </div>
+  </footer>
+);
+
+/* ─── Main App ─── */
 function App() {
   return (
-    <div className="bg-black text-white selection:bg-white selection:text-black">
+    <div className="bg-richBlack text-white selection:bg-white selection:text-black">
       <CustomCursor />
       <Hero />
       <Gallery />
+      <Philosophy />
       <Process />
+      <ConsultationQuiz />
       <Booking />
-      <footer className="py-12 border-t border-border text-center text-xs tracking-widest text-secondary uppercase">
-        &copy; {new Date().getFullYear()} Everpace Tattoo Studio. All rights reserved.
-      </footer>
+      <Footer />
     </div>
   );
 }
 
 export default App;
+
