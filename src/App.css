@@ -100,21 +100,6 @@ html {
   animation: curtainReveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.5s forwards;
 }
 
-/* Horizontal scroll section */
-.horizontal-scroll-section {
-  position: relative;
-  height: 300vh;
-}
-
-.horizontal-scroll-sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-
 /* Timeline hover glow */
 .timeline-step:hover .step-title {
   color: white;

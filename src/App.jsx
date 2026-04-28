@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import logo from './assets/logo.jpeg';
 import './App.css';
 
@@ -101,16 +101,47 @@ const Hero = () => {
   );
 };
 
-/* ─── Portfolio: Horizontal Parallax Scroll ─── */
+/* ─── Portfolio: Horizontal Drag & Scroll Gallery ─── */
 const Gallery = () => {
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
+  const x = useMotionValue(0);
+  const smoothX = useSpring(x, { stiffness: 300, damping: 30 });
+  const [constraints, setConstraints] = useState({ left: 0, right: 0 });
 
-  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-75%']);
-  const smoothX = useSpring(x, { stiffness: 100, damping: 30 });
+  useEffect(() => {
+    const updateConstraints = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.scrollWidth;
+        const viewportWidth = window.innerWidth;
+        const left = viewportWidth - containerWidth;
+        setConstraints({ left: left < 0 ? left : 0, right: 0 });
+      }
+    };
+    updateConstraints();
+    window.addEventListener('resize', updateConstraints);
+    return () => window.removeEventListener('resize', updateConstraints);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onWheel = (e) => {
+      const currentX = x.get();
+      const delta = e.deltaY;
+
+      if (delta > 0 && currentX > constraints.left) {
+        e.preventDefault();
+        x.set(Math.max(currentX - delta * 1.5, constraints.left));
+      } else if (delta < 0 && currentX < 0) {
+        e.preventDefault();
+        x.set(Math.min(currentX - delta * 1.5, 0));
+      }
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [constraints.left, x]);
 
   const tattoos = [
     { id: 1, src: logo, title: 'Abstract Flow', artist: 'Juve' },
@@ -122,32 +153,36 @@ const Gallery = () => {
   ];
 
   return (
-    <section ref={containerRef} className="horizontal-scroll-section bg-richBlack">
-      <div className="horizontal-scroll-sticky">
-        <div className="absolute top-12 left-4 md:left-12 z-10">
-          <h2 className="text-3xl md:text-5xl font-serif mb-2">Portfolio</h2>
-          <p className="text-secondary text-xs tracking-[0.2em] uppercase">Scroll to explore</p>
-        </div>
-
-        <motion.div style={{ x: smoothX }} className="parallax-container pl-4 md:pl-12 pt-24">
-          {tattoos.map((item, idx) => (
-            <motion.div
-              key={item.id}
-              className="parallax-item hover-target glass glass-card"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <img src={item.src} alt={item.title} className="grayscale" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                <h3 className="text-xl font-serif">{item.title}</h3>
-                <p className="text-secondary text-xs tracking-widest uppercase mt-1">by {item.artist}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+    <section className="min-h-screen flex flex-col justify-center bg-richBlack relative overflow-hidden py-24">
+      <div className="absolute top-12 left-4 md:left-12 z-10">
+        <h2 className="text-3xl md:text-5xl font-serif mb-2">Portfolio</h2>
+        <p className="text-secondary text-xs tracking-[0.2em] uppercase">Drag or scroll to explore</p>
       </div>
+
+      <motion.div
+        ref={containerRef}
+        style={{ x: smoothX }}
+        drag="x"
+        dragConstraints={constraints}
+        className="parallax-container pl-4 md:pl-12 pt-24"
+      >
+        {tattoos.map((item, idx) => (
+          <motion.div
+            key={item.id}
+            className="parallax-item hover-target glass glass-card"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: idx * 0.1 }}
+          >
+            <img src={item.src} alt={item.title} className="grayscale" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+              <h3 className="text-xl font-serif">{item.title}</h3>
+              <p className="text-secondary text-xs tracking-widest uppercase mt-1">by {item.artist}</p>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
     </section>
   );
 };
@@ -281,7 +316,7 @@ const ConsultationQuiz = () => {
     const text = encodeURIComponent(
       `Halo Everpace! Saya ingin booking konsultasi tatto.\nUkuran: ${size}\nPenempatan: ${placement}\nMohon info lebih lanjut, terima kasih!`
     );
-    return `https://wa.me/?text=${text}`;
+    return `https://wa.me/6282298402516?text=${text}`;
   };
 
   return (
@@ -413,7 +448,7 @@ const Booking = () => (
         Ready to make your mark?
       </h2>
       <a
-        href="https://wa.me/"
+        href="https://wa.me/6282298402516"
         target="_blank"
         rel="noopener noreferrer"
         className="btn-underline inline-block px-12 py-4 border border-white hover:bg-white hover:text-black transition-all duration-500 tracking-[0.2em] uppercase text-xs hover-target"
