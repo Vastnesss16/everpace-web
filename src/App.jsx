@@ -3,40 +3,6 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 import logo from './assets/logo.jpeg';
 import './App.css';
 
-/* ─── Custom Cursor ─── */
-const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-
-  useEffect(() => {
-    const onMouseMove = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-    };
-    const onMouseOver = (e) => {
-      if (e.target.closest('.hover-target') || e.target.closest('button') || e.target.closest('a') || e.target.closest('.quiz-option')) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
-    };
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseover', onMouseOver);
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseover', onMouseOver);
-    };
-  }, []);
-
-  return (
-    <div
-      className={`custom-cursor ${isHovering ? 'hovering' : ''}`}
-      style={{ left: `${position.x}px`, top: `${position.y}px` }}
-    >
-      <span className="cursor-text">View</span>
-    </div>
-  );
-};
-
 /* ─── Hero: Curtain Reveal ─── */
 const Hero = () => {
   const [revealed, setRevealed] = useState(false);
@@ -86,7 +52,7 @@ const Hero = () => {
         transition={{ delay: 1.8, duration: 1 }}
         className="text-secondary text-sm md:text-base tracking-[0.3em] uppercase font-light"
       >
-        Everpace Tattoo Studio
+        Everpace Tattoo
       </motion.p>
 
       <motion.div
@@ -144,12 +110,16 @@ const Gallery = () => {
   }, [constraints.left, x]);
 
   const tattoos = [
-    { id: 1, src: logo, title: 'Abstract Flow', artist: 'Juve' },
-    { id: 2, src: logo, title: 'Minimalist Geometry', artist: 'Juve' },
-    { id: 3, src: logo, title: "Nature's Edge", artist: 'Juve' },
-    { id: 4, src: logo, title: 'Modern Script', artist: 'Juve' },
-    { id: 5, src: logo, title: 'Fine Line Art', artist: 'Juve' },
-    { id: 6, src: logo, title: 'Eternal Bloom', artist: 'Juve' },
+    { id: 1, src: logo, title: 'Traditional / Oldschool', artist: 'Everpace' },
+    { id: 2, src: logo, title: 'Neo Traditional', artist: 'Everpace' },
+    { id: 3, src: logo, title: 'Realism / Realistic', artist: 'Everpace' },
+    { id: 4, src: logo, title: 'Japanese', artist: 'Everpace' },
+    { id: 5, src: logo, title: 'Watercolor', artist: 'Everpace' },
+    { id: 6, src: logo, title: 'Geometric', artist: 'Everpace' },
+    { id: 7, src: logo, title: 'Lettering', artist: 'Everpace' },
+    { id: 8, src: logo, title: 'Blackwork', artist: 'Everpace' },
+    { id: 9, src: logo, title: 'Minimalist / Fineline', artist: 'Everpace' },
+    { id: 10, src: logo, title: 'Tribal', artist: 'Everpace' },
   ];
 
   return (
@@ -230,7 +200,7 @@ const Philosophy = () => {
           className="mt-16 max-w-xl mx-auto"
         >
           <p className="text-secondary text-sm md:text-base leading-relaxed font-light">
-            Every piece we create is a dialogue between permanence and impermanence — 
+            Every piece we create is a dialogue between permanence and impermanence —
             a ritual that transforms skin into canvas, and moments into eternity.
           </p>
         </motion.div>
@@ -293,30 +263,43 @@ const ConsultationQuiz = () => {
   const [step, setStep] = useState(0);
   const [size, setSize] = useState('');
   const [placement, setPlacement] = useState('');
+  const [ink, setInk] = useState('');
 
   const sizes = [
-    { label: 'Kecil', desc: '3-8 cm', time: '1-2 jam' },
-    { label: 'Sedang', desc: '8-15 cm', time: '2-4 jam' },
-    { label: 'Besar', desc: '15+ cm', time: '4+ jam' },
+    { label: 'Small', desc: '3-5 cm', time: '0.5 - 1 hr' },
+    { label: 'Medium', desc: '6-10 cm', time: '1 - 2 hrs' },
+    { label: 'Big', desc: '15+ cm', time: 'Depends on complexity' },
   ];
 
   const placements = [
-    { label: 'Lengan', desc: 'Forearm / Upper arm' },
-    { label: 'Leher', desc: 'Side / Nape' },
-    { label: 'Punggung', desc: 'Full / Upper / Lower' },
+    { label: 'Arm', desc: 'Forearm / Upper arm' },
+    { label: 'Neck', desc: 'Side / Nape' },
+    { label: 'Back', desc: 'Full / Upper / Lower' },
+  ];
+
+  const inks = [
+    { label: 'Black', desc: 'Classic black ink' },
+    { label: 'Colour', desc: 'Vibrant coloured ink' },
   ];
 
   const reset = () => {
     setStep(0);
     setSize('');
     setPlacement('');
+    setInk('');
   };
 
   const getWhatsAppLink = () => {
     const text = encodeURIComponent(
-      `Halo Everpace! Saya ingin booking konsultasi tatto.\nUkuran: ${size}\nPenempatan: ${placement}\nMohon info lebih lanjut, terima kasih!`
+      `Hello Everpace! I would like to book a tattoo consultation.\nSize: ${size}\nPlacement: ${placement}\nInk: ${ink}\nPlease provide more information, thank you!`
     );
     return `https://wa.me/6282298402516?text=${text}`;
+  };
+
+  const handleWhatsAppClick = (e) => {
+    e.preventDefault();
+    const url = getWhatsAppLink();
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -330,7 +313,7 @@ const ConsultationQuiz = () => {
         >
           <h2 className="text-3xl md:text-5xl font-serif mb-4">Digital Consultation</h2>
           <p className="text-secondary text-xs tracking-[0.3em] uppercase">
-            Dapatkan estimasi untuk tato impianmu
+            Get an estimate for your dream tattoo
           </p>
         </motion.div>
 
@@ -339,7 +322,7 @@ const ConsultationQuiz = () => {
           <div className="quiz-progress mb-10">
             <div
               className="quiz-progress-fill"
-              style={{ width: step === 0 ? '33%' : step === 1 ? '66%' : '100%' }}
+              style={{ width: step === 0 ? '25%' : step === 1 ? '50%' : step === 2 ? '75%' : '100%' }}
             />
           </div>
 
@@ -349,7 +332,7 @@ const ConsultationQuiz = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <h3 className="text-xl font-serif mb-8 text-center">Pilih ukuran tatomu</h3>
+              <h3 className="text-xl font-serif mb-8 text-center">Choose your tattoo size</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {sizes.map((s) => (
                   <button
@@ -372,7 +355,7 @@ const ConsultationQuiz = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <h3 className="text-xl font-serif mb-8 text-center">Pilih penempatan</h3>
+              <h3 className="text-xl font-serif mb-8 text-center">Choose placement</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {placements.map((p) => (
                   <button
@@ -389,12 +372,40 @@ const ConsultationQuiz = () => {
                 onClick={() => setStep(0)}
                 className="mt-8 text-secondary text-xs tracking-widest uppercase hover:text-white transition-colors hover-target"
               >
-                ← Kembali
+                ← Back
               </button>
             </motion.div>
           )}
 
           {step === 2 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h3 className="text-xl font-serif mb-8 text-center">Choose ink type</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {inks.map((i) => (
+                  <button
+                    key={i.label}
+                    onClick={() => { setInk(i.label); setStep(3); }}
+                    className="quiz-option hover-target"
+                  >
+                    <div className="text-lg font-serif mb-1">{i.label}</div>
+                    <div className="text-secondary text-xs">{i.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setStep(1)}
+                className="mt-8 text-secondary text-xs tracking-widest uppercase hover:text-white transition-colors hover-target"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
+
+          {step === 3 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -407,24 +418,25 @@ const ConsultationQuiz = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-serif mb-2">Ringkasan Konsultasi</h3>
-                <p className="text-secondary text-sm">Ukuran: <span className="text-white">{size}</span> · Penempatan: <span className="text-white">{placement}</span></p>
+                <h3 className="text-2xl font-serif mb-2">Consultation Summary</h3>
+                <p className="text-secondary text-sm">
+                  Size: <span className="text-white">{size}</span> · Placement: <span className="text-white">{placement}</span> · Ink: <span className="text-white">{ink}</span>
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
                   href={getWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={handleWhatsAppClick}
                   className="inline-flex items-center justify-center px-8 py-4 bg-white text-black text-xs tracking-[0.2em] uppercase font-medium rounded-lg hover:bg-secondary hover:text-white transition-all duration-500 hover-target"
                 >
-                  Hubungi via WhatsApp
+                  Contact via WhatsApp
                 </a>
                 <button
                   onClick={reset}
                   className="inline-flex items-center justify-center px-8 py-4 border border-border text-xs tracking-[0.2em] uppercase rounded-lg hover:border-white transition-all duration-500 hover-target"
                 >
-                  Ulangi
+                  Restart
                 </button>
               </div>
             </motion.div>
@@ -447,14 +459,31 @@ const Booking = () => (
       <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif mb-12 italic">
         Ready to make your mark?
       </h2>
-      <a
-        href="https://wa.me/6282298402516"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn-underline inline-block px-12 py-4 border border-white hover:bg-white hover:text-black transition-all duration-500 tracking-[0.2em] uppercase text-xs hover-target"
-      >
-        Book an Appointment
-      </a>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <a
+          href="https://wa.me/6282298402516"
+          onClick={(e) => {
+            e.preventDefault();
+            window.open('https://wa.me/6282298402516', '_blank', 'noopener,noreferrer');
+          }}
+          className="btn-underline inline-block px-12 py-4 border border-white hover:bg-white hover:text-black transition-all duration-500 tracking-[0.2em] uppercase text-xs hover-target"
+        >
+          Book an Appointment
+        </a>
+        <a
+          href="https://instagram.com/everpace.tattoo"
+          onClick={(e) => {
+            e.preventDefault();
+            window.open('https://instagram.com/everpace.tattoo', '_blank', 'noopener,noreferrer');
+          }}
+          className="inline-flex items-center gap-2 text-secondary hover:text-white transition-colors tracking-[0.2em] uppercase text-xs hover-target"
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+          </svg>
+          @everpace.tattoo
+        </a>
+      </div>
     </motion.div>
   </section>
 );
@@ -467,6 +496,32 @@ const Footer = () => (
         <img src={logo} alt="Everpace" className="w-10 h-10 rounded object-cover grayscale opacity-60" />
         <span className="text-xs tracking-[0.3em] uppercase text-secondary">Everpace Tattoo Studio</span>
       </div>
+
+      <div className="flex items-center gap-6">
+        <a
+          href="https://instagram.com/everpace.tattoo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover-target text-secondary hover:text-white transition-colors"
+          aria-label="Instagram"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+          </svg>
+        </a>
+        <a
+          href="https://wa.me/6282298402516"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover-target text-secondary hover:text-white transition-colors"
+          aria-label="WhatsApp"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+        </a>
+      </div>
+
       <p className="text-xs tracking-widest text-secondary uppercase">
         &copy; {new Date().getFullYear()} Everpace. All rights reserved.
       </p>
@@ -478,7 +533,6 @@ const Footer = () => (
 function App() {
   return (
     <div className="bg-richBlack text-white selection:bg-white selection:text-black">
-      <CustomCursor />
       <Hero />
       <Gallery />
       <Philosophy />
@@ -491,4 +545,3 @@ function App() {
 }
 
 export default App;
-
