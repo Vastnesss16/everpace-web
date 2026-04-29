@@ -119,7 +119,7 @@ const Gallery = () => {
     { id: 7, src: logo, title: 'Lettering', artist: 'Everpace' },
     { id: 8, src: logo, title: 'Blackwork', artist: 'Everpace' },
     { id: 9, src: logo, title: 'Minimalist / Fineline', artist: 'Everpace' },
-    { id: 10, src: logo, title: 'Tribal', artist: 'Everpace' },
+
   ];
 
   return (
@@ -275,6 +275,7 @@ const ConsultationQuiz = () => {
     { label: 'Arm', desc: 'Forearm / Upper arm' },
     { label: 'Neck', desc: 'Side / Nape' },
     { label: 'Back', desc: 'Full / Upper / Lower' },
+    { label: 'Foot', desc: 'Ankle / Top of foot' },
   ];
 
   const inks = [
@@ -296,10 +297,9 @@ const ConsultationQuiz = () => {
     return `https://wa.me/6282298402516?text=${text}`;
   };
 
-  const handleWhatsAppClick = (e) => {
-    e.preventDefault();
+  const handleWhatsAppClick = () => {
     const url = getWhatsAppLink();
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.location.href = url;
   };
 
   return (
